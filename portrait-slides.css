@@ -24,13 +24,15 @@
  *
  * Presentation mode
  * -----------------
- *  An additional scale(--portrait-scale) is applied so the pre-rotation
- *  element fits within the section's own bounds.  This prevents any
- *  overflow from being clipped by Reveal.js's overflow:hidden containers.
+ *  The portrait-content is shown in its natural portrait orientation —
+ *  no rotation is applied — and scaled down so it fits within the section
+ *  height.  This is the reverse of the print-PDF rotation (double rotation:
+ *  print-PDF applies +90°; presentation mode effectively undoes it, giving
+ *  0° net rotation so text remains horizontal).
  *  --portrait-scale is set by portrait-slides.js as (slide-height /
  *  slide-width); with defaults that gives scale ≈ 0.729 (700 / 960).
- *  After rotate + scale the visible area is centred in the landscape
- *  slide with a small margin on all four sides.
+ *  After scale the visible area is a portrait rectangle (≈ 511 × 700 px)
+ *  centred horizontally in the landscape slide, filling the full height.
  *
  * Print-PDF mode (?print-pdf)
  * ---------------------------
@@ -85,23 +87,24 @@
     box-sizing:       border-box;
 }
 
-/* ── Presentation mode: scale to fit viewport ────────────────────────────── */
+/* ── Presentation mode: portrait orientation with horizontal text ─────────── */
 /*
- * In presentation mode Reveal.js containers have overflow:hidden, which can
- * clip the pre-rotation element (it extends ±130 px outside the section in
- * the default 960×700 configuration).  Applying scale(--portrait-scale) keeps
- * the element within the section's own bounds so nothing is ever clipped.
+ * In presentation mode the portrait-content is shown without rotation so
+ * that it appears as a portrait area with readable, horizontal text.  This
+ * reverses the +90° rotation that print-PDF uses (the "double rotation":
+ * once in print-PDF, once reversed here), giving a net 0° rotation.
  *
- * --portrait-scale is calculated by portrait-slides.js as:
- *   slide-height / slide-width  (e.g. 700 / 960 ≈ 0.729)
+ * Only scale(--portrait-scale) is applied:
+ *   scale = slide-height / slide-width  (e.g. 700 / 960 ≈ 0.729)
  *
- * After rotate(90deg) scale(0.729) the visible area is:
- *   width  = slide-height × scale ≈ 700 px  (centred, 130 px gap each side)
- *   height = slide-width  × scale ≈ 510 px  (centred,  95 px gap top/bottom)
+ * The portrait-content element is slide-height wide × slide-width tall
+ * (700 × 960 px by default), centred in the section.  After scaling:
+ *   width  = slide-height × scale ≈ 511 px  (centred, ~224 px gap each side)
+ *   height = slide-width  × scale = 700 px  (fills the viewport height)
  *
  * The print-PDF selector is excluded so the full-page rotation is preserved
- * for PDF export (the scale selector below does not apply there).
+ * for PDF export (this rule does not apply in print-pdf mode).
  */
 html:not(.print-pdf) .reveal section.portrait .portrait-content {
-    transform: rotate(90deg) scale(var(--portrait-scale));
+    transform: scale(var(--portrait-scale));
 }
