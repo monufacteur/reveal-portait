@@ -107,7 +107,7 @@
         <div class="feature-card">
             <span class="icon">🖨️</span>
             <h3>Print PDF (<code>?print-pdf</code>)</h3>
-            <p>Portrait slides output as normal landscape pages — no rotation in the PDF.</p>
+            <p>Portrait slides are printed with the same 90° rotation as seen on screen.</p>
         </div>
         <div class="feature-card">
             <span class="icon">⚡</span>
@@ -151,8 +151,8 @@
         <div class="callout warn" style="margin-top:10px;">
             <strong>Print / PDF mode:</strong>
             Append <code>?print-pdf</code> to the URL and print from the
-            browser. Rotation is disabled; every portrait slide prints as a
-            standard landscape page.
+            browser. The 90° rotation is preserved so the PDF looks identical
+            to the on-screen presentation.
         </div>
 
         <div class="callout ok" style="margin-top:10px;">
@@ -331,7 +331,7 @@
         <div style="flex:1;">
             <h3>Files</h3>
             <ul style="line-height:2.1;">
-                <li><code>portrait-slides.css</code> — rotation &amp; print override</li>
+                <li><code>portrait-slides.css</code> — rotation styles (presentation &amp; print)</li>
                 <li><code>portrait-slides.js</code>  — dimension sync, auto-wrap, Plotly resize</li>
                 <li><code>index.html</code>           — this example presentation</li>
             </ul>
@@ -349,8 +349,8 @@
     <div class="callout" style="margin-top:16px;">
         <strong>PDF export:</strong> open this file with
         <code>?print-pdf</code> appended to the URL, then use the browser's
-        print dialog (Ctrl / ⌘ + P). Portrait slides will appear as normal
-        landscape pages in the exported PDF.
+        print dialog (Ctrl / ⌘ + P). Portrait slides are printed with the
+        same 90° rotation as shown on screen.
     </div>
     <div class="callout ok" style="margin-top:8px;">
         <strong>Custom slide sizes:</strong> set <code>width</code> and

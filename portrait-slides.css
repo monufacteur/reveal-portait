@@ -24,8 +24,8 @@
  *
  * Print-PDF mode (?print-pdf)
  * ---------------------------
- *  Rotation is disabled. Each portrait slide prints as a normal landscape
- *  page, with the content filling the full slide area without rotation.
+ *  The same 90° rotation is preserved in print-PDF mode so that the printed
+ *  output looks identical to the on-screen presentation.
  */
 
 /* ── CSS custom properties (updated at runtime by portrait-slides.js) ──── */
@@ -71,15 +71,4 @@
     transform-origin: center center;
     overflow:         hidden;
     box-sizing:       border-box;
-}
-
-/* ── Print-PDF override: no rotation, fills slide as a normal landscape ──── */
-html.print-pdf .reveal section.portrait .portrait-content {
-    position:  absolute;
-    width:     100%;
-    height:    100%;
-    left:      0;
-    top:       0;
-    transform: none;
-    overflow:  hidden;
 }
