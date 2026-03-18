@@ -1,0 +1,85 @@
+/*
+ * Portrait Slides Template — portrait-slides.css
+ *
+ * Enables portrait-oriented slides within a landscape Reveal.js presentation.
+ *
+ * Usage
+ * -----
+ *  1. Add class="portrait" to any <section> element.
+ *  2. Wrap the slide content in <div class="portrait-content">.
+ *     (Or load portrait-slides.js, which wraps it automatically.)
+ *
+ * How it works
+ * ------------
+ *  Default Reveal.js slide: 960 px wide × 700 px tall (landscape).
+ *
+ *  For a portrait slide the .portrait-content box is sized to
+ *  slide-height × slide-width (700 × 960), then rotated 90° clockwise.
+ *  After rotation the bounding box is exactly 960 × 700 — a perfect fit.
+ *
+ *    Container (pre-rotation):   700 wide  × 960 tall
+ *    left offset = (960 - 700) / 2 = 130 px   (centres it horizontally)
+ *    top  offset = (700 - 960) / 2 = −130 px  (centres it vertically)
+ *    After rotate(90deg):        960 wide  × 700 tall  ✓
+ *
+ * Print-PDF mode (?print-pdf)
+ * ---------------------------
+ *  Rotation is disabled. Each portrait slide prints as a normal landscape
+ *  page, with the content filling the full slide area without rotation.
+ */
+
+/* ── CSS custom properties (updated at runtime by portrait-slides.js) ──── */
+:root {
+    --slide-width:  960px;
+    --slide-height: 700px;
+}
+
+/* ── Portrait section ────────────────────────────────────────────────────── */
+/*
+ * The section must have an explicit height equal to the slide height.
+ *
+ * Without it the section collapses to 0 px (all children are
+ * position: absolute, so nothing contributes to the flow height).
+ * A 0-height section is invisible: the Reveal.js slide-background layer
+ * paints above it in the stacking order and obscures the content.
+ *
+ * Setting the height explicitly restores the section's presence in the
+ * stacking context so .portrait-content is painted correctly.
+ *
+ * overflow: visible allows the rotated content to extend outside the
+ * section's own box (it spans −130 px to +830 px vertically before
+ * rotation) while still fitting perfectly within the slide area
+ * after the 90° transform.
+ */
+.reveal section.portrait {
+    height:   var(--slide-height);  /* must not collapse to 0 — see note above */
+    overflow: visible;
+    padding:  0;
+}
+
+/* ── The rotated content wrapper ─────────────────────────────────────────── */
+.reveal section.portrait .portrait-content {
+    position:        absolute;
+    /* Dimensions are intentionally swapped vs the slide: */
+    width:           var(--slide-height);   /* 700 px */
+    height:          var(--slide-width);    /* 960 px */
+    /* Offsets centre the box inside the landscape slide: */
+    left:  calc((var(--slide-width)  - var(--slide-height)) / 2);
+    top:   calc((var(--slide-height) - var(--slide-width))  / 2);
+    /* Rotate 90° clockwise so portrait content fills the landscape area: */
+    transform:        rotate(90deg);
+    transform-origin: center center;
+    overflow:         hidden;
+    box-sizing:       border-box;
+}
+
+/* ── Print-PDF override: no rotation, fills slide as a normal landscape ──── */
+html.print-pdf .reveal section.portrait .portrait-content {
+    position:  absolute;
+    width:     100%;
+    height:    100%;
+    left:      0;
+    top:       0;
+    transform: none;
+    overflow:  hidden;
+}

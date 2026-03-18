@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixed Landscape &amp; Portrait — Reveal.js Template</title>
+
+    <!-- Reveal.js core CSS (local vendor copy) -->
+    <link rel="stylesheet" href="vendor/reveal/reset.css">
+    <link rel="stylesheet" href="vendor/reveal/reveal.css">
+    <link rel="stylesheet" href="vendor/reveal/theme/white.css">
+
+    <!-- Portrait-slide template CSS -->
+    <link rel="stylesheet" href="portrait-slides.css">
+
+    <style>
+        /* ── Presentation-specific tweaks ────────────────────────────────── */
+        .reveal h1 { font-size: 1.9em; line-height: 1.2; }
+        .reveal h2 { font-size: 1.35em; color: #2c3e50; }
+        .reveal h3 { font-size: 1.05em; color: #34495e; }
+        .reveal p, .reveal li { font-size: 0.72em; line-height: 1.6; }
+        .reveal code { font-size: 0.85em; background: #f4f4f4;
+                       padding: 1px 5px; border-radius: 3px; }
+        .reveal pre  { font-size: 0.7em; }
+
+        /* ── Tables ─────────────────────────────────────────────────────── */
+        .reveal table { width: 100%; font-size: 0.68em; border-collapse: collapse; }
+        .reveal table thead th {
+            background: #2c3e50; color: #fff;
+            padding: 8px 12px; text-align: left;
+        }
+        .reveal table tbody td  { padding: 6px 12px; }
+        .reveal table tbody tr:nth-child(even) { background: #f0f3f4; }
+        .reveal table tbody tr:hover           { background: #d6eaf8; }
+
+        /* ── Utility helpers ─────────────────────────────────────────────── */
+        .callout {
+            background: #eaf2ff; border-left: 4px solid #3498db;
+            padding: 10px 14px; margin: 10px 0;
+            border-radius: 0 4px 4px 0; font-size: 0.65em;
+        }
+        .callout.warn  { background: #fef9e7; border-color: #f39c12; }
+        .callout.ok    { background: #eafaf1; border-color: #2ecc71; }
+
+        .feature-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+            margin-top: 14px;
+        }
+        .feature-card {
+            background: #f8f9fa; border: 1px solid #dee2e6;
+            border-radius: 8px; padding: 14px; text-align: center;
+        }
+        .feature-card .icon { font-size: 1.9em; display: block; margin-bottom: 6px; }
+        .feature-card h3    { font-size: 0.82em; margin: 4px 0; color: #2c3e50; }
+        .feature-card p     { font-size: 0.62em; color: #666; margin: 0; }
+
+        /* Badge shown on portrait slides */
+        .portrait-badge {
+            position: absolute; top: 8px; right: 8px;
+            background: #c0392b; color: #fff;
+            padding: 2px 7px; border-radius: 3px;
+            font-size: 0.5em; letter-spacing: 0.07em;
+            text-transform: uppercase; font-family: sans-serif;
+            pointer-events: none;
+        }
+
+        /* ── Plotly container ────────────────────────────────────────────── */
+        .plotly-wrap { width: 100%; }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 1 — Title  (Landscape)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section>
+    <h1>Mixed Orientation<br>Presentations</h1>
+    <h3>Landscape &amp; Portrait Slides with Reveal.js</h3>
+    <hr style="border:none; border-top:1px solid #ccc; margin:20px auto; width:60%;">
+    <p style="color:#777;">
+        A reusable template combining landscape and portrait slides —<br>
+        with interactive Plotly charts, tables, and images.
+    </p>
+    <p style="font-size:0.55em; color:#aaa; margin-top:30px;">
+        Navigate with arrow keys &nbsp;|&nbsp; Press <strong>?</strong> for all shortcuts
+    </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 2 — How it works  (Landscape)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section>
+    <h2>How the Template Works</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <span class="icon">🖥️</span>
+            <h3>Landscape Slides</h3>
+            <p>Standard Reveal.js&nbsp;960 × 700 slides.<br>No extra markup needed.</p>
+        </div>
+        <div class="feature-card">
+            <span class="icon">📱</span>
+            <h3>Portrait Slides</h3>
+            <p>Add <code>class="portrait"</code> to <code>&lt;section&gt;</code> and wrap content in <code>.portrait-content</code>.</p>
+        </div>
+        <div class="feature-card">
+            <span class="icon">🖨️</span>
+            <h3>Print PDF (<code>?print-pdf</code>)</h3>
+            <p>Portrait slides output as normal landscape pages — no rotation in the PDF.</p>
+        </div>
+        <div class="feature-card">
+            <span class="icon">⚡</span>
+            <h3>Interactive Charts</h3>
+            <p>Plotly.js charts work in both orientations and resize automatically.</p>
+        </div>
+    </div>
+    <div class="callout" style="margin-top:16px;">
+        <strong>CSS magic:</strong> <code>.portrait-content</code> is sized
+        700 × 960 px then rotated 90°. After rotation the bounding box is
+        exactly 960 × 700 — a perfect fit with no scaling required.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 3 — Portrait text  (Portrait)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="portrait">
+    <div class="portrait-content" style="padding:38px 36px; background:linear-gradient(170deg,#f8f9fa 0%,#ffffff 100%);">
+        <span class="portrait-badge">Portrait</span>
+        <h2 style="border-bottom:2px solid #3498db; padding-bottom:10px; margin-bottom:14px;">
+            Portrait Slides in Depth
+        </h2>
+        <p>Portrait slides are ideal for content that is naturally tall:</p>
+        <ul style="line-height:1.9;">
+            <li>Tall infographics and vertical data-flows</li>
+            <li>Long-form documents and report excerpts</li>
+            <li>Vertical timelines and milestone charts</li>
+            <li>Portrait-oriented photography</li>
+            <li>Code listings that benefit from vertical space</li>
+            <li>Mobile-first design mockups</li>
+        </ul>
+
+        <div class="callout" style="margin-top:18px;">
+            <strong>Presentation mode:</strong>
+            The content box is <em>rotated 90° clockwise</em> with
+            <code>transform: rotate(90deg)</code>. Viewers rotate their
+            device or tilt the screen to read portrait slides.
+        </div>
+
+        <div class="callout warn" style="margin-top:10px;">
+            <strong>Print / PDF mode:</strong>
+            Append <code>?print-pdf</code> to the URL and print from the
+            browser. Rotation is disabled; every portrait slide prints as a
+            standard landscape page.
+        </div>
+
+        <div class="callout ok" style="margin-top:10px;">
+            <strong>Auto-wrap:</strong>
+            If you omit <code>.portrait-content</code>,
+            <code>portrait-slides.js</code> wraps all child nodes
+            automatically (except <code>&lt;aside class="notes"&gt;</code>).
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 4 — Data table  (Landscape)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section>
+    <h2>Quarterly Revenue Table — Landscape</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Quarter</th>
+                <th>Product A ($K)</th>
+                <th>Product B ($K)</th>
+                <th>Total ($K)</th>
+                <th>QoQ Growth</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Q1 2023</td><td>420</td><td>310</td><td>730</td><td>—</td></tr>
+            <tr>
+                <td>Q2 2023</td><td>580</td><td>420</td><td>1 000</td>
+                <td class="fragment highlight-green" data-fragment-index="1">+37 %</td>
+            </tr>
+            <tr><td>Q3 2023</td><td>610</td><td>390</td><td>1 000</td><td>+0 %</td></tr>
+            <tr>
+                <td>Q4 2023</td><td>750</td><td>530</td><td>1 280</td>
+                <td class="fragment highlight-green" data-fragment-index="2">+28 %</td>
+            </tr>
+            <tr>
+                <td>Q1 2024</td><td>490</td><td>350</td><td>840</td>
+                <td style="color:#c0392b;">−34 %</td>
+            </tr>
+            <tr>
+                <td>Q2 2024</td><td>680</td><td>480</td><td>1 160</td>
+                <td class="fragment highlight-green" data-fragment-index="3">+38 %</td>
+            </tr>
+        </tbody>
+    </table>
+    <p style="color:#999; font-size:0.5em; margin-top:12px;">
+        <em>Fragments reveal growth figures step-by-step (press →).</em>
+    </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 5 — Portrait SVG infographic  (Portrait)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="portrait" data-background-color="#1a252f">
+    <div class="portrait-content" style="padding:22px 28px;">
+        <span class="portrait-badge">Portrait</span>
+        <h2 style="color:#ecf0f1; text-align:center; font-size:1.05em; margin-bottom:14px;">
+            Company Milestones
+        </h2>
+        <!-- Vertical timeline drawn in SVG — fills the 644 × 820 area -->
+        <svg width="644" height="820" viewBox="0 0 644 820"
+             xmlns="http://www.w3.org/2000/svg"
+             style="display:block; margin:0 auto;">
+
+            <!-- Spine -->
+            <line x1="58" y1="15" x2="58" y2="810"
+                  stroke="#3498db" stroke-width="3"/>
+
+            <!-- 2018 -->
+            <circle cx="58" cy="60"  r="11" fill="#3498db"/>
+            <text x="82" y="54" font-family="Arial,sans-serif" font-size="15"
+                  fill="#ecf0f1" font-weight="bold">2018 — Founded</text>
+            <text x="82" y="74" font-family="Arial,sans-serif" font-size="12"
+                  fill="#bdc3c7">Series A funding: $5 M</text>
+
+            <!-- 2019 -->
+            <circle cx="58" cy="180" r="11" fill="#2ecc71"/>
+            <text x="82" y="174" font-family="Arial,sans-serif" font-size="15"
+                  fill="#ecf0f1" font-weight="bold">2019 — Launch</text>
+            <text x="82" y="194" font-family="Arial,sans-serif" font-size="12"
+                  fill="#bdc3c7">First 1 000 customers acquired</text>
+
+            <!-- 2020 -->
+            <circle cx="58" cy="300" r="11" fill="#e74c3c"/>
+            <text x="82" y="294" font-family="Arial,sans-serif" font-size="15"
+                  fill="#ecf0f1" font-weight="bold">2020 — Pivot</text>
+            <text x="82" y="314" font-family="Arial,sans-serif" font-size="12"
+                  fill="#bdc3c7">Remote-first during the pandemic</text>
+
+            <!-- 2021 -->
+            <circle cx="58" cy="420" r="11" fill="#f39c12"/>
+            <text x="82" y="414" font-family="Arial,sans-serif" font-size="15"
+                  fill="#ecf0f1" font-weight="bold">2021 — Series B</text>
+            <text x="82" y="434" font-family="Arial,sans-serif" font-size="12"
+                  fill="#bdc3c7">$20 M raised · team grew to 50</text>
+
+            <!-- 2022 -->
+            <circle cx="58" cy="540" r="11" fill="#9b59b6"/>
+            <text x="82" y="534" font-family="Arial,sans-serif" font-size="15"
+                  fill="#ecf0f1" font-weight="bold">2022 — Expansion</text>
+            <text x="82" y="554" font-family="Arial,sans-serif" font-size="12"
+                  fill="#bdc3c7">Entered EU and APAC markets</text>
+
+            <!-- 2023 -->
+            <circle cx="58" cy="660" r="11" fill="#1abc9c"/>
+            <text x="82" y="654" font-family="Arial,sans-serif" font-size="15"
+                  fill="#ecf0f1" font-weight="bold">2023 — Profitability</text>
+            <text x="82" y="674" font-family="Arial,sans-serif" font-size="12"
+                  fill="#bdc3c7">$5 M ARR · break-even achieved</text>
+
+            <!-- 2024 (today) -->
+            <circle cx="58" cy="775" r="13" fill="#3498db"
+                    stroke="#ecf0f1" stroke-width="3"/>
+            <text x="82" y="769" font-family="Arial,sans-serif" font-size="15"
+                  fill="#3498db" font-weight="bold">2024 — Today</text>
+            <text x="82" y="789" font-family="Arial,sans-serif" font-size="12"
+                  fill="#bdc3c7">$12 M ARR · 200 employees</text>
+        </svg>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 6 — Grouped bar chart  (Landscape, interactive Plotly)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section>
+    <h2>Revenue by Quarter — Interactive Bar Chart</h2>
+    <div id="chart-bar" class="plotly-wrap" style="height:460px;"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 7 — Line + bar combo chart  (Portrait, interactive Plotly)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="portrait">
+    <div class="portrait-content" style="padding:20px 26px; background:#fff;">
+        <span class="portrait-badge">Portrait</span>
+        <h2 style="font-size:0.95em; color:#2c3e50; margin-bottom:4px;">
+            Monthly KPI Dashboard
+        </h2>
+        <p style="color:#777; margin-bottom:8px;">
+            Sales, costs and profit across all 12 months
+        </p>
+        <div id="chart-portrait-combo" class="plotly-wrap" style="height:790px;"></div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 8 — Scatter + trend line  (Landscape, interactive Plotly)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section>
+    <h2>Marketing Spend vs Revenue — Scatter Plot</h2>
+    <div id="chart-scatter" class="plotly-wrap" style="height:460px;"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 9 — Donut + Gauge  (Portrait, interactive Plotly)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="portrait">
+    <div class="portrait-content" style="padding:20px 26px; background:#f8f9fa;">
+        <span class="portrait-badge">Portrait</span>
+        <h2 style="font-size:0.95em; color:#2c3e50; margin-bottom:8px;">
+            Revenue Mix &amp; Satisfaction Score
+        </h2>
+        <div id="chart-donut"  class="plotly-wrap" style="height:370px;"></div>
+        <div id="chart-gauge"  class="plotly-wrap" style="height:370px;"></div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SLIDE 10 — Conclusion  (Landscape)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section>
+    <h2>Template Summary</h2>
+    <div style="display:flex; gap:28px; align-items:flex-start; font-size:0.72em;">
+        <div style="flex:1;">
+            <h3>Files</h3>
+            <ul style="line-height:2.1;">
+                <li><code>portrait-slides.css</code> — rotation &amp; print override</li>
+                <li><code>portrait-slides.js</code>  — dimension sync, auto-wrap, Plotly resize</li>
+                <li><code>index.html</code>           — this example presentation</li>
+            </ul>
+        </div>
+        <div style="flex:1;">
+            <h3>Minimal markup</h3>
+            <pre style="background:#f4f4f4; padding:10px; border-radius:4px;
+                        text-align:left; font-size:0.88em;">&lt;section class="portrait"&gt;
+  &lt;div class="portrait-content"&gt;
+    &lt;!-- your portrait content --&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</pre>
+        </div>
+    </div>
+    <div class="callout" style="margin-top:16px;">
+        <strong>PDF export:</strong> open this file with
+        <code>?print-pdf</code> appended to the URL, then use the browser's
+        print dialog (Ctrl / ⌘ + P). Portrait slides will appear as normal
+        landscape pages in the exported PDF.
+    </div>
+    <div class="callout ok" style="margin-top:8px;">
+        <strong>Custom slide sizes:</strong> set <code>width</code> and
+        <code>height</code> in <code>Reveal.initialize()</code> — the JS
+        will automatically update the CSS custom properties used for the
+        rotation maths.
+    </div>
+</section>
+
+</div><!-- /.slides -->
+</div><!-- /.reveal -->
+
+<!-- ── Reveal.js (must load before portrait-slides.js) ──────────────────── -->
+<script src="vendor/reveal/reveal.js"></script>
+
+<!-- ── Portrait Slides template JS ─────────────────────────────────────── -->
+<script src="portrait-slides.js"></script>
+
+<!-- ── Plotly.js ────────────────────────────────────────────────────────── -->
+<script src="vendor/plotly-2.29.1.min.js"></script>
+
+<!-- ── Presentation initialisation + chart creation ─────────────────────── -->
+<script>
+    /* ── Reveal.js init ────────────────────────────────────────────────── */
+    Reveal.initialize({
+        width:      960,
+        height:     700,
+        margin:     0.04,
+        hash:       true,
+        transition: 'slide',
+        plugins:    []
+    });
+
+    /* ── Build Plotly charts once Reveal is ready ─────────────────────── */
+    Reveal.on('ready', function () {
+
+        /* ── Chart 1: Grouped bar — Slide 6 ─────────────────────────── */
+        Plotly.newPlot('chart-bar', [
+            {
+                x: ['Q1 2023','Q2 2023','Q3 2023','Q4 2023','Q1 2024','Q2 2024'],
+                y: [420, 580, 610, 750, 490, 680],
+                type: 'bar', name: 'Product A',
+                marker: { color: '#3498db' }
+            },
+            {
+                x: ['Q1 2023','Q2 2023','Q3 2023','Q4 2023','Q1 2024','Q2 2024'],
+                y: [310, 420, 390, 530, 350, 480],
+                type: 'bar', name: 'Product B',
+                marker: { color: '#e74c3c' }
+            }
+        ], {
+            barmode: 'group',
+            margin:  { t: 20, b: 60, l: 65, r: 20 },
+            legend:  { orientation: 'h', y: -0.22 },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor:  'rgba(0,0,0,0)',
+            font:   { size: 13 },
+            xaxis:  { title: 'Quarter' },
+            yaxis:  { title: 'Revenue ($K)' }
+        }, { responsive: true });
+
+        /* ── Chart 2: Line + bar combo — Slide 7 (Portrait) ─────────── */
+        var months = ['Jan','Feb','Mar','Apr','May','Jun',
+                      'Jul','Aug','Sep','Oct','Nov','Dec'];
+        Plotly.newPlot('chart-portrait-combo', [
+            {
+                x: months,
+                y: [85, 72, 90, 95, 88, 102, 110, 98, 115, 120, 108, 130],
+                type: 'scatter', mode: 'lines+markers', name: 'Sales',
+                line:   { color: '#3498db', width: 2 },
+                marker: { size: 7 }
+            },
+            {
+                x: months,
+                y: [60, 58, 70, 72, 68, 75, 80, 71, 85, 90, 82, 95],
+                type: 'scatter', mode: 'lines+markers', name: 'Costs',
+                line:   { color: '#e74c3c', width: 2, dash: 'dash' },
+                marker: { size: 7 }
+            },
+            {
+                x: months,
+                y: [25, 14, 20, 23, 20, 27, 30, 27, 30, 30, 26, 35],
+                type: 'bar', name: 'Profit',
+                marker: {
+                    color: 'rgba(46,204,113,0.45)',
+                    line:  { color: '#27ae60', width: 1 }
+                }
+            }
+        ], {
+            barmode: 'relative',
+            margin:  { t: 10, b: 55, l: 60, r: 20 },
+            legend:  { orientation: 'h', y: -0.11 },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor:  'rgba(0,0,0,0)',
+            font:  { size: 12 },
+            xaxis: { title: 'Month' },
+            yaxis: { title: 'Value ($K)' }
+        }, { responsive: true });
+
+        /* ── Chart 3: Scatter + trend — Slide 8 ──────────────────────── */
+        /* Deterministic pseudo-data (avoids randomness on each reload) */
+        var spend   = [5,9,14,18,22,26,30,34,38,42,46,51,55,59,63,
+                       67,71,76,80,84,88,92,96,100,104,108,113,117,121,125];
+        var revenue = spend.map(function (x, i) {
+            /* y ≈ 1.8x + 20 + small wave */
+            return Math.round(x * 1.8 + 20 + Math.sin(i * 0.7) * 8);
+        });
+        Plotly.newPlot('chart-scatter', [
+            {
+                x: spend, y: revenue,
+                mode: 'markers', type: 'scatter', name: 'Campaigns',
+                marker: { color: '#9b59b6', size: 9, opacity: 0.75 }
+            },
+            {
+                x: [0, 130], y: [20, 254],   /* trend: y = 1.8x + 20 */
+                mode: 'lines', name: 'Trend',
+                line: { color: '#e74c3c', dash: 'dash', width: 2 }
+            }
+        ], {
+            margin: { t: 20, b: 60, l: 65, r: 20 },
+            legend: { orientation: 'h', y: -0.22 },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor:  'rgba(0,0,0,0)',
+            font:  { size: 13 },
+            xaxis: { title: 'Marketing Spend ($K)' },
+            yaxis: { title: 'Revenue ($K)' }
+        }, { responsive: true });
+
+        /* ── Chart 4a: Donut — Slide 9 (Portrait, top) ───────────────── */
+        Plotly.newPlot('chart-donut', [{
+            values: [35, 25, 20, 12, 8],
+            labels: ['North America','Europe','Asia Pacific',
+                     'Latin America','Other'],
+            type: 'pie', hole: 0.42,
+            marker: {
+                colors: ['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6']
+            },
+            textinfo: 'label+percent'
+        }], {
+            margin:      { t: 28, b: 10, l: 20, r: 20 },
+            showlegend:  false,
+            title:       { text: 'Revenue by Region', font: { size: 14 } },
+            paper_bgcolor: 'rgba(0,0,0,0)'
+        }, { responsive: true });
+
+        /* ── Chart 4b: Gauge — Slide 9 (Portrait, bottom) ────────────── */
+        Plotly.newPlot('chart-gauge', [{
+            type:  'indicator',
+            mode:  'gauge+number+delta',
+            value: 78,
+            delta: { reference: 65, increasing: { color: '#2ecc71' } },
+            gauge: {
+                axis:  { range: [0, 100] },
+                bar:   { color: '#3498db' },
+                steps: [
+                    { range: [0,  50], color: '#fadbd8' },
+                    { range: [50, 75], color: '#fdebd0' },
+                    { range: [75,100], color: '#d5f5e3' }
+                ],
+                threshold: {
+                    line:      { color: '#e74c3c', width: 4 },
+                    thickness: 0.75,
+                    value:     90
+                }
+            },
+            title: { text: 'Customer Satisfaction Score' }
+        }], {
+            margin:       { t: 40, b: 10, l: 20, r: 20 },
+            paper_bgcolor: 'rgba(0,0,0,0)'
+        }, { responsive: true });
+    });
+</script>
+</body>
+</html>
