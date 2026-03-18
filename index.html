@@ -107,7 +107,7 @@
         <div class="feature-card">
             <span class="icon">🖨️</span>
             <h3>Print PDF (<code>?print-pdf</code>)</h3>
-            <p>Portrait slides are printed with the same 90° rotation as seen on screen.</p>
+            <p>Portrait slides are printed with the same 90° rotation as seen on screen, filling the landscape page.</p>
         </div>
         <div class="feature-card">
             <span class="icon">⚡</span>
@@ -116,9 +116,11 @@
         </div>
     </div>
     <div class="callout" style="margin-top:16px;">
-        <strong>CSS magic:</strong> <code>.portrait-content</code> is sized
-        700 × 960 px then rotated 90°. After rotation the bounding box is
-        exactly 960 × 700 — a perfect fit with no scaling required.
+        <strong>CSS magic:</strong> In presentation mode <code>.portrait-content</code>
+        is rotated 90° and scaled to fit the viewport
+        (<code>scale ≈ slide-height / slide-width</code>).
+        In print-PDF mode the scale is omitted so the rotated content fills the
+        landscape page completely.
     </div>
 </section>
 
@@ -143,16 +145,18 @@
 
         <div class="callout" style="margin-top:18px;">
             <strong>Presentation mode:</strong>
-            The content box is <em>rotated 90° clockwise</em> with
-            <code>transform: rotate(90deg)</code>. Viewers rotate their
-            device or tilt the screen to read portrait slides.
+            The content box is <em>rotated 90° clockwise</em> and
+            <em>scaled to fit the viewport</em>
+            (<code>transform: rotate(90deg) scale(height/width)</code>).
+            The scaled content is centred in the landscape slide with a small
+            margin on all four sides.
         </div>
 
         <div class="callout warn" style="margin-top:10px;">
             <strong>Print / PDF mode:</strong>
             Append <code>?print-pdf</code> to the URL and print from the
-            browser. The 90° rotation is preserved so the PDF looks identical
-            to the on-screen presentation.
+            browser. The 90° rotation is preserved without extra scaling so
+            the PDF fills the landscape page completely.
         </div>
 
         <div class="callout ok" style="margin-top:10px;">
@@ -350,13 +354,13 @@
         <strong>PDF export:</strong> open this file with
         <code>?print-pdf</code> appended to the URL, then use the browser's
         print dialog (Ctrl / ⌘ + P). Portrait slides are printed with the
-        same 90° rotation as shown on screen.
+        same 90° rotation, filling the landscape page completely.
     </div>
     <div class="callout ok" style="margin-top:8px;">
         <strong>Custom slide sizes:</strong> set <code>width</code> and
         <code>height</code> in <code>Reveal.initialize()</code> — the JS
         will automatically update the CSS custom properties used for the
-        rotation maths.
+        rotation and scale maths.
     </div>
 </section>
 
