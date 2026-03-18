@@ -116,6 +116,60 @@
         });
     }
 
+    /**
+     * Inject the presentation toolbar into the page and wire up the
+     * Print / Export PDF button.
+     *
+     * The toolbar shows the document title and a button that:
+     *  1. Temporarily enables the `print-pdf` layout class on <html>
+     *     (the same class Reveal.js adds when ?print-pdf is in the URL),
+     *     so portrait slides are rotated correctly in the printed output.
+     *  2. Opens the browser print dialog.
+     *  3. Restores the previous layout class state after the dialog closes.
+     *
+     * The toolbar element carries id="presentation-toolbar" so that
+     * portrait-slides.css can hide it via @media print.
+     */
+    function initToolbar() {
+        /* Do nothing if the toolbar is already present (e.g. called twice). */
+        if (document.getElementById('presentation-toolbar')) { return; }
+
+        var toolbar = document.createElement('div');
+        toolbar.id = 'presentation-toolbar';
+
+        var titleEl = document.createElement('span');
+        titleEl.className = 'toolbar-title';
+        titleEl.textContent = document.title;
+        toolbar.appendChild(titleEl);
+
+        var btn = document.createElement('button');
+        btn.className = 'toolbar-print-btn';
+        btn.type = 'button';
+        btn.textContent = '\uD83D\uDDA8 Print / Export PDF';
+        toolbar.appendChild(btn);
+
+        /* Insert as the very first child of <body>. */
+        document.body.insertBefore(toolbar, document.body.firstChild);
+
+        btn.addEventListener('click', function () {
+            var html = document.documentElement;
+            var wasPrintPdf = html.classList.contains('print-pdf');
+
+            /* Activate print-pdf layout so portrait slides render correctly. */
+            html.classList.add('print-pdf');
+
+            function restoreAfterPrint() {
+                if (!wasPrintPdf) {
+                    html.classList.remove('print-pdf');
+                }
+                window.removeEventListener('afterprint', restoreAfterPrint);
+            }
+
+            window.addEventListener('afterprint', restoreAfterPrint);
+            window.print();
+        });
+    }
+
     /* ── Bootstrap: hook into Reveal.js events ────────────────────────────── */
     if (!window.Reveal) {
         console.warn('portrait-slides.js: Reveal.js not found. ' +
@@ -126,6 +180,7 @@
     Reveal.on('ready', function () {
         syncSlideDimensions();
         wrapPortraitSlides();
+        initToolbar();
         /* Resize any charts that happen to be on the opening slide. */
         resizePlotsInSlide(Reveal.getCurrentSlide());
     });
@@ -138,6 +193,7 @@
     window.PortraitSlides = {
         syncSlideDimensions: syncSlideDimensions,
         wrapPortraitSlides:  wrapPortraitSlides,
-        resizePlotsInSlide:  resizePlotsInSlide
+        resizePlotsInSlide:  resizePlotsInSlide,
+        initToolbar:         initToolbar
     };
 }());
