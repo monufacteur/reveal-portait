@@ -151,22 +151,68 @@
         /* Insert as the very first child of <body>. */
         document.body.insertBefore(toolbar, document.body.firstChild);
 
+        /*
+         * Measure the toolbar's rendered height and expose it as a CSS custom
+         * property so the .reveal-viewport offset rule can consume it.
+         * getBoundingClientRect() returns the exact pixel height after layout.
+         */
+        var toolbarHeight = toolbar.getBoundingClientRect().height;
+        if (toolbarHeight > 0) {
+            document.documentElement.style.setProperty(
+                '--toolbar-height', Math.ceil(toolbarHeight) + 'px');
+        }
+
+        /* Re-run Reveal's layout so it recalculates with the reduced viewport. */
+        if (window.Reveal && typeof Reveal.layout === 'function') {
+            Reveal.layout();
+        }
+
         btn.addEventListener('click', function () {
             var html = document.documentElement;
             var wasPrintPdf = html.classList.contains('print-pdf');
 
             /* Activate print-pdf layout so portrait slides render correctly. */
-            html.classList.add('print-pdf');
-
-            function restoreAfterPrint() {
-                if (!wasPrintPdf) {
-                    html.classList.remove('print-pdf');
-                }
-                window.removeEventListener('afterprint', restoreAfterPrint);
+            if (!wasPrintPdf) {
+                html.classList.add('print-pdf');
             }
 
-            window.addEventListener('afterprint', restoreAfterPrint);
-            window.print();
+            /*
+             * Delay window.print() by one tick so the browser applies the
+             * .print-pdf class change and re-renders before capturing the
+             * print layout.  Without this delay, iOS Safari may snapshot the
+             * pre-change state, causing portrait slides to appear unrotated.
+             * 100 ms is enough for a style + layout pass on all tested
+             * browsers; values below ~50 ms were unreliable on iOS Safari.
+             */
+            setTimeout(function () {
+                window.print();
+            }, 100);
+
+            /*
+             * Restore the class after printing.
+             *
+             * afterprint is the standard event but is not reliably fired on
+             * all platforms (notably iOS Safari).  A timeout is therefore
+             * registered as a fallback; the `restored` flag prevents the
+             * class being removed twice.
+             *
+             * The 2 000 ms timeout is deliberately conservative: it is long
+             * enough that a typical print dialog has closed (or the user has
+             * switched away), yet short enough to feel responsive.  Because
+             * the print snapshot is captured before the dialog appears, this
+             * restore cannot affect the printed output.
+             */
+            if (!wasPrintPdf) {
+                var restored = false;
+                function restoreAfterPrint() {
+                    if (restored) { return; }
+                    restored = true;
+                    html.classList.remove('print-pdf');
+                    window.removeEventListener('afterprint', restoreAfterPrint);
+                }
+                window.addEventListener('afterprint', restoreAfterPrint);
+                setTimeout(restoreAfterPrint, 2000);
+            }
         });
     }
 
