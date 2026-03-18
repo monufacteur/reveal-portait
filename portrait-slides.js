@@ -3,9 +3,10 @@
  *
  * Provides three behaviours for portrait slides inside a Reveal.js deck:
  *
- *  1. Dimension sync  — keeps the CSS custom properties --slide-width and
- *                       --slide-height in sync with the Reveal.js config so
- *                       the rotation maths always works for non-default sizes.
+ *  1. Dimension sync  — keeps the CSS custom properties --slide-width,
+ *                       --slide-height, and --portrait-scale in sync with
+ *                       the Reveal.js config so the rotation and scaling
+ *                       maths always works for non-default sizes.
  *
  *  2. Auto-wrap       — if a <section class="portrait"> does not already
  *                       contain a .portrait-content child, all visible child
@@ -29,6 +30,8 @@
 
     /**
      * Update --slide-width / --slide-height to match the Reveal.js config.
+     * Also sets --portrait-scale (slide-height / slide-width) for use by the
+     * presentation-mode CSS that scales portrait content to fit the viewport.
      * Called once when Reveal fires the 'ready' event.
      */
     function syncSlideDimensions() {
@@ -37,8 +40,11 @@
         var width  = typeof cfg.width  === 'number' ? cfg.width  : 960;
         var height = typeof cfg.height === 'number' ? cfg.height : 700;
         var root   = document.documentElement;
-        root.style.setProperty('--slide-width',  width  + 'px');
-        root.style.setProperty('--slide-height', height + 'px');
+        root.style.setProperty('--slide-width',    width  + 'px');
+        root.style.setProperty('--slide-height',   height + 'px');
+        /* Unitless scale factor: keeps pre-rotation element within section
+         * bounds so Reveal's overflow:hidden containers cannot clip it.    */
+        root.style.setProperty('--portrait-scale', (height / width).toFixed(6));
     }
 
     /**
