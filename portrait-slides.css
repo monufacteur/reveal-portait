@@ -40,6 +40,68 @@
  *  output fills the landscape page completely.
  */
 
+/* ── Presentation toolbar ─────────────────────────────────────────────────── */
+/*
+ * Fixed bar at the top of the viewport showing the presentation title and a
+ * Print / Export PDF button.  Hidden completely during printing so it does
+ * not appear in the PDF output.
+ *
+ * The toolbar is injected into the page by portrait-slides.js (initToolbar).
+ */
+#presentation-toolbar {
+    position:        fixed;
+    top:             0;
+    left:            0;
+    right:           0;
+    z-index:         10000;
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         6px 16px;
+    background:      #2c3e50;
+    color:           #ecf0f1;
+    font-family:     sans-serif;
+    font-size:       14px;
+    box-shadow:      0 2px 4px rgba(0,0,0,0.35);
+    box-sizing:      border-box;
+}
+
+#presentation-toolbar .toolbar-title {
+    overflow:      hidden;
+    white-space:   nowrap;
+    text-overflow: ellipsis;
+    margin-right:  16px;
+}
+
+#presentation-toolbar .toolbar-print-btn {
+    flex-shrink:   0;
+    padding:       5px 14px;
+    background:    #3498db;
+    color:         #fff;
+    border:        none;
+    border-radius: 4px;
+    cursor:        pointer;
+    font-size:     13px;
+    line-height:   1.4;
+}
+
+#presentation-toolbar .toolbar-print-btn:hover {
+    background: #2980b9;
+}
+
+/* Hide the toolbar when printing so it does not appear in the PDF output. */
+@media print {
+    #presentation-toolbar { display: none; }
+}
+
+/*
+ * @page only applies to paged (printed) output — it has no effect on screen
+ * rendering.  It cannot legally be nested inside @media per the CSS spec, so
+ * it lives at the top level here.  Landscape orientation matches Reveal.js's
+ * default 960 × 700 slide aspect ratio.
+ */
+@page { size: landscape; }
+
 /* ── CSS custom properties (updated at runtime by portrait-slides.js) ──── */
 :root {
     --slide-width:    960px;
