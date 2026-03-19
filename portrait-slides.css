@@ -209,6 +209,9 @@ html:not(.print-pdf) .reveal section.portrait .portrait-content {
         height:           var(--slide-width)  !important;
         left: calc((var(--slide-width)  - var(--slide-height)) / 2) !important;
         top:  calc((var(--slide-height) - var(--slide-width))  / 2) !important;
+        /* See the "Print-PDF: fix overflow clipping" comment below for why
+         * overflow must be visible during printing.                         */
+        overflow:         visible !important;
     }
 }
 
@@ -225,3 +228,34 @@ html:not(.print-pdf) .reveal section.portrait .portrait-content {
  * to place the section at its computed (left, top) keeps portrait slides
  * centred on the printed page, matching landscape slide behaviour.
  */
+
+/* ── Print-PDF: fix overflow clipping for portrait slides ────────────────── */
+/*
+ * Reveal.js sets overflow: hidden on .pdf-page so that each page clips its
+ * own content.  For portrait slides the .portrait-content layout box extends
+ * outside the .pdf-page bounds (the pre-rotation height of 1122 px exceeds
+ * the 824 px pdf-page height), while the post-rotation visual area fits the
+ * page exactly.
+ *
+ * Some print renderers (notably Edge) apply overflow clipping based on the
+ * layout (pre-transform) bounds rather than the visual (post-transform) area.
+ * This causes the left and right edges of the rotated portrait content to be
+ * cut off, making the slide appear narrower with large left/right margins, and
+ * can also cause Plotly charts to disappear entirely in the print preview.
+ *
+ * Setting overflow: visible on the .pdf-page in print-pdf mode prevents this
+ * spurious clipping.  The portrait-content visual area still fits perfectly
+ * within the page boundaries, so no content actually bleeds between pages.
+ *
+ * overflow: visible is also set on .portrait-content itself (and in the
+ * @media print block above) so that any child SVG elements (e.g. Plotly
+ * charts) that extend fractionally outside the element's layout box are
+ * not clipped when the browser captures the print layout.
+ */
+html.print-pdf .reveal .slides .pdf-page {
+    overflow: visible;
+}
+
+html.print-pdf .reveal section.portrait .portrait-content {
+    overflow: visible;
+}
