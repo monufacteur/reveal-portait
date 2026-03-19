@@ -11,16 +11,17 @@
  *
  * How it works
  * ------------
- *  Default Reveal.js slide: 960 px wide × 700 px tall (landscape).
+ *  Default slide size: A4 landscape — 1122 px wide × 794 px tall
+ *  (297 mm × 210 mm at 96 DPI).
  *
  *  For a portrait slide the .portrait-content box is sized to
- *  slide-height × slide-width (700 × 960), then rotated 90° clockwise.
- *  After rotation the bounding box is exactly 960 × 700 — a perfect fit.
+ *  slide-height × slide-width (794 × 1122), then rotated 90° clockwise.
+ *  After rotation the bounding box is exactly 1122 × 794 — a perfect fit.
  *
- *    Container (pre-rotation):   700 wide  × 960 tall
- *    left offset = (960 - 700) / 2 = 130 px   (centres it horizontally)
- *    top  offset = (700 - 960) / 2 = −130 px  (centres it vertically)
- *    After rotate(90deg):        960 wide  × 700 tall  ✓
+ *    Container (pre-rotation):   794 wide  × 1122 tall
+ *    left offset = (1122 - 794) / 2 = 164 px   (centres it horizontally)
+ *    top  offset = (794 - 1122) / 2 = −164 px  (centres it vertically)
+ *    After rotate(90deg):        1122 wide  × 794 tall  ✓
  *
  * Presentation mode
  * -----------------
@@ -30,8 +31,9 @@
  *  print-PDF applies +90°; presentation mode effectively undoes it, giving
  *  0° net rotation so text remains horizontal).
  *  --portrait-scale is set by portrait-slides.js as (slide-height /
- *  slide-width); with defaults that gives scale ≈ 0.729 (700 / 960).
- *  After scale the visible area is a portrait rectangle (≈ 511 × 700 px)
+ *  slide-width); with A4 landscape defaults that gives scale ≈ 0.707
+ *  (794 / 1122).
+ *  After scale the visible area is a portrait rectangle (≈ 561 × 794 px)
  *  centred horizontally in the landscape slide, filling the full height.
  *
  * Print-PDF mode (?print-pdf)
@@ -110,15 +112,16 @@ html:not(.print-pdf) .reveal-viewport {
 /*
  * @page only applies to paged (printed) output — it has no effect on screen
  * rendering.  It cannot legally be nested inside @media per the CSS spec, so
- * it lives at the top level here.  Landscape orientation matches Reveal.js's
- * default 960 × 700 slide aspect ratio.
+ * it lives at the top level here.  A4 landscape matches the slide dimensions
+ * (1122 × 794 px / 297 × 210 mm).  margin: 0 is set because the slide
+ * content is already sized to fill the page exactly.
  */
-@page { size: landscape; }
+@page { size: A4 landscape; margin: 0; }
 
 /* ── CSS custom properties (updated at runtime by portrait-slides.js) ──── */
 :root {
-    --slide-width:    960px;
-    --slide-height:   700px;
+    --slide-width:    1122px;
+    --slide-height:   794px;
     /* Unitless scale factor used in presentation mode (set by JS). */
     --portrait-scale: 1;
 }
@@ -150,8 +153,8 @@ html:not(.print-pdf) .reveal-viewport {
 .reveal section.portrait .portrait-content {
     position:        absolute;
     /* Dimensions are intentionally swapped vs the slide: */
-    width:           var(--slide-height);   /* 700 px */
-    height:          var(--slide-width);    /* 960 px */
+    width:           var(--slide-height);   /* 794 px */
+    height:          var(--slide-width);    /* 1122 px */
     /* Offsets centre the box inside the landscape slide: */
     left:  calc((var(--slide-width)  - var(--slide-height)) / 2);
     top:   calc((var(--slide-height) - var(--slide-width))  / 2);
@@ -170,12 +173,12 @@ html:not(.print-pdf) .reveal-viewport {
  * once in print-PDF, once reversed here), giving a net 0° rotation.
  *
  * Only scale(--portrait-scale) is applied:
- *   scale = slide-height / slide-width  (e.g. 700 / 960 ≈ 0.729)
+ *   scale = slide-height / slide-width  (e.g. 794 / 1122 ≈ 0.707)
  *
  * The portrait-content element is slide-height wide × slide-width tall
- * (700 × 960 px by default), centred in the section.  After scaling:
- *   width  = slide-height × scale ≈ 511 px  (centred, ~224 px gap each side)
- *   height = slide-width  × scale = 700 px  (fills the viewport height)
+ * (794 × 1122 px by default), centred in the section.  After scaling:
+ *   width  = slide-height × scale ≈ 561 px  (centred, ~280 px gap each side)
+ *   height = slide-width  × scale = 794 px  (fills the viewport height)
  *
  * The print-PDF selector is excluded so the full-page rotation is preserved
  * for PDF export (this rule does not apply in print-pdf mode).
