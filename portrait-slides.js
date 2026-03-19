@@ -177,29 +177,40 @@
             }
 
             /*
-             * Resize every Plotly chart so it redraws at the dimensions
-             * dictated by the print-pdf layout (portrait-content is now
-             * rotated 90° rather than scaled, so charts must recalculate
-             * their bounding boxes).  Failures are silently swallowed because
-             * a chart that has not yet fully initialised will throw.
-             */
-            if (window.Plotly) {
-                document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
-                    try { Plotly.Plots.resize(plot); } catch (_) {}
-                });
-            }
-
-            /*
-             * Delay window.print() by one tick so the browser applies the
-             * .print-pdf class change and re-renders before capturing the
-             * print layout.  Without this delay, iOS Safari may snapshot the
-             * pre-change state, causing portrait slides to appear unrotated.
-             * 100 ms is enough for a style + layout pass on all tested
-             * browsers; values below ~50 ms were unreliable on iOS Safari.
+             * Delay window.print() so the browser fully applies any class
+             * changes and re-renders before the print layout is captured.
+             *
+             * When transitioning from presentation to print-pdf mode
+             * (!wasPrintPdf), portrait-content switches from scale() to
+             * rotate(90°), so Plotly charts must be resized to the new
+             * bounding box.  The resize is done inside the timeout so it
+             * runs after the CSS transition, and window.print() follows in
+             * the next animation frame so the browser has committed the new
+             * render before the print snapshot is taken.
+             *
+             * When already in print-pdf mode (wasPrintPdf = true), the charts
+             * are already correctly sized for the print layout — do not resize
+             * them, as doing so can corrupt the rendered SVG before printing.
+             *
+             * 150 ms gives the browser a full style + layout pass after the
+             * class change before Plotly resize runs.  Values below ~50 ms
+             * were unreliable on iOS Safari.  The extra 50 ms over the
+             * previous 100 ms baseline provides headroom for the Plotly resize
+             * to complete before the subsequent requestAnimationFrame fires
+             * window.print().
              */
             setTimeout(function () {
-                window.print();
-            }, 100);
+                if (!wasPrintPdf && window.Plotly) {
+                    document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
+                        try { Plotly.Plots.resize(plot); } catch (_) {}
+                    });
+                }
+                /* Let the browser commit one more render pass after the
+                 * Plotly resize before capturing the print layout.        */
+                requestAnimationFrame(function () {
+                    window.print();
+                });
+            }, 150);
 
             /*
              * Restore the class after printing.
@@ -208,6 +219,9 @@
              * all platforms (notably iOS Safari).  A timeout is therefore
              * registered as a fallback; the `restored` flag prevents the
              * class being removed twice.
+             *
+             * After restoring the class, Plotly charts are resized back to
+             * the presentation-mode (scaled) dimensions.
              *
              * The 2 000 ms timeout is deliberately conservative: it is long
              * enough that a typical print dialog has closed (or the user has
@@ -222,6 +236,12 @@
                     restored = true;
                     html.classList.remove('print-pdf');
                     window.removeEventListener('afterprint', restoreAfterPrint);
+                    /* Re-render Plotly charts at presentation-mode dimensions. */
+                    if (window.Plotly) {
+                        document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
+                            try { Plotly.Plots.resize(plot); } catch (_) {}
+                        });
+                    }
                 }
                 window.addEventListener('afterprint', restoreAfterPrint);
                 setTimeout(restoreAfterPrint, 2000);
@@ -246,6 +266,24 @@
 
     Reveal.on('slidechanged', function (event) {
         resizePlotsInSlide(event.currentSlide);
+    });
+
+    /*
+     * Resize all Plotly charts just before the browser captures the print
+     * layout.  This fires for both the toolbar button (via window.print())
+     * and the browser's native print shortcut (Ctrl / ⌘ + P).
+     *
+     * When the print dialog opens in ?print-pdf mode the charts are already
+     * in the correct rotated layout; calling resize() here ensures the SVG
+     * dimensions are up-to-date so the browser's print renderer captures
+     * them correctly instead of showing blank / clipped areas.
+     */
+    window.addEventListener('beforeprint', function () {
+        if (window.Plotly) {
+            document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
+                try { Plotly.Plots.resize(plot); } catch (_) {}
+            });
+        }
     });
 
     /* Expose helpers for manual use if needed. */
