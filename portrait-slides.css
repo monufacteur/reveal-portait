@@ -211,3 +211,21 @@ html:not(.print-pdf) .reveal section.portrait .portrait-content {
         top:  calc((var(--slide-height) - var(--slide-width))  / 2) !important;
     }
 }
+
+/* ── Print-PDF: anchor portrait sections to the top-left of their pdf-page ── */
+/*
+ * Reveal.js centers each section within its .pdf-page container by adding
+ * positive top/left offsets (half of pdfPageHeightOffset ≈ 15 px and half
+ * of pdfPageWidthOffset ≈ 22 px, respectively).  For landscape slides this
+ * gutter is harmless.  For portrait slides the rotated .portrait-content is
+ * sized to fill the slide area exactly (1122 × 794 px by default), so any
+ * offset shifts the content away from (0, 0) and causes:
+ *   • a gap at the left and top of the printed page, and
+ *   • the rotated content to overflow the right and bottom edges.
+ * Anchoring the portrait section to (0, 0) of its .pdf-page ensures the
+ * rotated content fills the landscape page precisely.
+ */
+html.print-pdf .reveal section.portrait {
+    top:  0 !important;
+    left: 0 !important;
+}

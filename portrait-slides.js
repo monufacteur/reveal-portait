@@ -177,6 +177,19 @@
             }
 
             /*
+             * Resize every Plotly chart so it redraws at the dimensions
+             * dictated by the print-pdf layout (portrait-content is now
+             * rotated 90° rather than scaled, so charts must recalculate
+             * their bounding boxes).  Failures are silently swallowed because
+             * a chart that has not yet fully initialised will throw.
+             */
+            if (window.Plotly) {
+                document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
+                    try { Plotly.Plots.resize(plot); } catch (_) {}
+                });
+            }
+
+            /*
              * Delay window.print() by one tick so the browser applies the
              * .print-pdf class change and re-renders before capturing the
              * print layout.  Without this delay, iOS Safari may snapshot the
