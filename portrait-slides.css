@@ -209,9 +209,22 @@ html:not(.print-pdf) .reveal section.portrait .portrait-content {
         height:           var(--slide-width)  !important;
         left: calc((var(--slide-width)  - var(--slide-height)) / 2) !important;
         top:  calc((var(--slide-height) - var(--slide-width))  / 2) !important;
-        /* See the "Print-PDF: fix overflow clipping" comment below for why
-         * overflow must be visible during printing.                         */
+        /* overflow and background must be overridden for print.
+         * overflow: visible  — see "Print-PDF: fix overflow clipping" below.
+         * background: transparent — see "Print-PDF: non-white background"
+         * below; removes the pre-rotation layout-position background bleed.  */
         overflow:         visible !important;
+        background:       transparent !important;
+    }
+
+    /* Non-white background, visible border, and paint-level clip for portrait
+     * slides that do not provide their own data-background-color.  Applied to
+     * the <section> element rather than .portrait-content (see the
+     * "Print-PDF: non-white background" comment below for the reason).        */
+    .reveal section.portrait:not([data-background-color]) {
+        background: #e8f4fd;
+        box-shadow: inset 0 0 0 2px rgba(52, 152, 219, 0.6);
+        clip-path:  inset(0);
     }
 }
 
@@ -234,8 +247,8 @@ html:not(.print-pdf) .reveal section.portrait .portrait-content {
  * Reveal.js sets overflow: hidden on .pdf-page so that each page clips its
  * own content.  For portrait slides the .portrait-content layout box extends
  * outside the .pdf-page bounds (the pre-rotation height of 1122 px exceeds
- * the 824 px pdf-page height), while the post-rotation visual area fits the
- * page exactly.
+ * the pdf-page height), while the post-rotation visual area fits the page
+ * exactly.
  *
  * Some print renderers (notably Edge) apply overflow clipping based on the
  * layout (pre-transform) bounds rather than the visual (post-transform) area.
@@ -243,19 +256,59 @@ html:not(.print-pdf) .reveal section.portrait .portrait-content {
  * cut off, making the slide appear narrower with large left/right margins, and
  * can also cause Plotly charts to disappear entirely in the print preview.
  *
- * Setting overflow: visible on the .pdf-page in print-pdf mode prevents this
- * spurious clipping.  The portrait-content visual area still fits perfectly
- * within the page boundaries, so no content actually bleeds between pages.
+ * Setting overflow: visible on .pdf-page prevents this spurious layout-bounds
+ * clipping.  clip-path: inset(0) is added as a complementary measure: unlike
+ * overflow (which acts on layout bounds), clip-path clips the final PAINTED
+ * output to the .pdf-page border-box.  This stops any stray pre-transform
+ * paint from bleeding into adjacent pages — for example, the same Edge
+ * renderer can paint .portrait-content backgrounds at the pre-rotation layout
+ * position (which extends above and below the .pdf-page boundary) rather than
+ * at the rotated visual position.  clip-path: inset(0) contains that paint
+ * while leaving the correctly-rotated visual content untouched.
  *
- * overflow: visible is also set on .portrait-content itself (and in the
+ * overflow: visible is also retained on .portrait-content itself (and in the
  * @media print block above) so that any child SVG elements (e.g. Plotly
  * charts) that extend fractionally outside the element's layout box are
  * not clipped when the browser captures the print layout.
  */
 html.print-pdf .reveal .slides .pdf-page {
-    overflow: visible;
+    overflow:  visible;
+    clip-path: inset(0);
 }
 
 html.print-pdf .reveal section.portrait .portrait-content {
-    overflow: visible;
+    overflow:   visible;
+    background: transparent !important;
+}
+
+/* ── Print-PDF: non-white background and border for portrait slides ─────── */
+/*
+ * Gives every portrait slide a visible non-white background and a subtle
+ * inset page border in print-PDF mode so its boundaries are immediately
+ * apparent in the print preview — useful for confirming that the rotated
+ * content fills the page correctly and that no inter-page bleed is occurring.
+ *
+ * The background and border are applied to the <section> element rather than
+ * to .portrait-content.  The Edge print renderer can paint .portrait-content
+ * backgrounds at the pre-rotation LAYOUT position rather than at the rotated
+ * VISUAL position.  The layout box extends 164 px above and below the
+ * .pdf-page boundary, so that paint would bleed into the previous and next
+ * pages.  Because the <section> has transform: none in print-PDF mode
+ * (enforced by Reveal.js), any background applied to the section is always
+ * painted at the correct landscape position, completely filling the slide
+ * area.
+ *
+ * The :not([data-background-color]) guard excludes slides that already
+ * provide an explicit background via Reveal's data-background-color attribute
+ * (e.g. data-background-color="#1a252f").  Those slides render their
+ * background through the .slide-background layer — a position:absolute
+ * sibling of the section that fills the full pdf-page area without any
+ * transform — so no additional CSS background is needed.
+ *
+ * box-shadow: inset draws the visible page border inside the section's
+ * border-box without adding to the element's layout dimensions.
+ */
+html.print-pdf .reveal section.portrait:not([data-background-color]) {
+    background: #e8f4fd;
+    box-shadow: inset 0 0 0 2px rgba(52, 152, 219, 0.6);
 }
