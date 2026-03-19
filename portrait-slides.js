@@ -37,8 +37,8 @@
     function syncSlideDimensions() {
         if (!window.Reveal) { return; }
         var cfg    = Reveal.getConfig();
-        var width  = typeof cfg.width  === 'number' ? cfg.width  : 960;
-        var height = typeof cfg.height === 'number' ? cfg.height : 700;
+        var width  = typeof cfg.width  === 'number' ? cfg.width  : 1122;
+        var height = typeof cfg.height === 'number' ? cfg.height : 794;
         var root   = document.documentElement;
         root.style.setProperty('--slide-width',    width  + 'px');
         root.style.setProperty('--slide-height',   height + 'px');
@@ -60,7 +60,7 @@
      */
     function wrapPortraitSlides() {
         var cfg    = window.Reveal ? Reveal.getConfig() : {};
-        var height = typeof cfg.height === 'number' ? cfg.height : 700;
+        var height = typeof cfg.height === 'number' ? cfg.height : 794;
 
         var sections = document.querySelectorAll('.reveal section.portrait');
         sections.forEach(function (section) {
