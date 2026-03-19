@@ -281,6 +281,36 @@ html.print-pdf .reveal section.portrait .portrait-content {
     background: transparent !important;
 }
 
+/* ── Print-PDF: fix section centering within its pdf-page ─────────────────── */
+/*
+ * Reveal.js centres each section within its pdf-page by reading
+ * section.scrollHeight and computing top = max((pageH − scrollH) / 2, 0).
+ *
+ * The portrait-content is position: absolute with top: −164 px and
+ * height: 1122 px, so its layout bottom edge sits 164 px below the section.
+ * In Chrome, an overflow: visible element's scrollHeight includes the extent
+ * of absolutely-positioned children that overflow in the positive direction,
+ * inflating the section's scrollHeight from 794 px to ≈ 958 px.
+ *
+ * When pdfMaxPagesPerSlide is 1 (as in the demo), Reveal.js caps m at 1 even
+ * though the inflated scrollHeight suggests 2 pages.  The centering formula
+ * then gives max((825 − 958) / 2, 0) = 0, placing the section at top: 0
+ * instead of top: ≈ 15 px.  The portrait-content's visual top equals the
+ * section's top offset, so top: 0 means no top margin in the printed output.
+ *
+ * CSS size containment makes the section's layout size independent of its
+ * children, preventing scrollHeight from exceeding the section's own height.
+ * An explicit width matches the value Reveal.js later writes as an inline
+ * style, ensuring contain: size has a well-defined intrinsic size even before
+ * Reveal.js sets the inline style.  The overflow: visible base rule is not
+ * changed, so Edge can still paint the rotated portrait-content outside the
+ * section's layout box without clipping.
+ */
+html.print-pdf .reveal section.portrait {
+    width:   var(--slide-width);
+    contain: size;
+}
+
 /* ── Print-PDF: non-white background and border for portrait slides ─────── */
 /*
  * Gives every portrait slide a visible non-white background and a subtle

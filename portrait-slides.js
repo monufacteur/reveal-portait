@@ -184,6 +184,30 @@
             var html = document.documentElement;
             var wasPrintPdf = html.classList.contains('print-pdf');
 
+            /*
+             * Portrait slides print correctly only when Reveal.js has run its
+             * PDF layout: it creates .pdf-page containers and centres each
+             * section within its page (top ≈ (pageHeight − slideHeight) / 2).
+             * Without that offset the portrait-content sits at top: 0 and the
+             * printed page has no top margin.
+             *
+             * Reveal.js runs setupPDF() only when the URL contains ?print-pdf.
+             * If .pdf-page elements are absent we must navigate there so the
+             * proper layout is built before printing.  A sessionStorage flag
+             * tells the page to open the print dialog automatically once ready.
+             */
+            if (!document.querySelector('.reveal .slides .pdf-page')) {
+                try {
+                    sessionStorage.setItem('portrait-slides-autoprint', '1');
+                } catch (_) {}
+                window.location.replace(
+                    window.location.pathname + '?print-pdf');
+                return;
+            }
+
+            /* .pdf-page containers exist — Reveal.js layout is in place.
+             * Proceed with the normal print flow.                          */
+
             /* Activate print-pdf layout so portrait slides render correctly. */
             if (!wasPrintPdf) {
                 html.classList.add('print-pdf');
@@ -277,8 +301,29 @@
              *
              * 300 ms is sufficient for the synchronous chart-creation code to
              * complete and for the browser to perform a layout pass.
+             *
+             * If the toolbar Print button navigated here from the presentation
+             * view (detected via sessionStorage), open the print dialog
+             * automatically after the chart resize completes.
              */
-            setTimeout(resizeAllPlots, 300);
+            var autoprint = false;
+            try {
+                if (sessionStorage.getItem('portrait-slides-autoprint') === '1') {
+                    autoprint = true;
+                    sessionStorage.removeItem('portrait-slides-autoprint');
+                }
+            } catch (_) {}
+
+            setTimeout(function () {
+                resizeAllPlots();
+                if (autoprint) {
+                    /* One extra animation frame lets the browser commit the
+                     * resized charts before the print snapshot is taken.  */
+                    requestAnimationFrame(function () {
+                        window.print();
+                    });
+                }
+            }, 300);
         } else {
             /* Resize any charts that happen to be on the opening slide. */
             resizePlotsInSlide(Reveal.getCurrentSlide());
