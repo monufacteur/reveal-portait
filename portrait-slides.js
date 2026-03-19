@@ -117,6 +117,19 @@
     }
 
     /**
+     * Trigger a resize event on every Plotly chart in the entire document.
+     * Used when all slides are visible simultaneously (print-pdf mode) or
+     * when the global layout has changed (e.g. entering / leaving print-pdf
+     * mode via the toolbar button).
+     */
+    function resizeAllPlots() {
+        if (!window.Plotly) { return; }
+        document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
+            try { Plotly.Plots.resize(plot); } catch (_) {}
+        });
+    }
+
+    /**
      * Inject the presentation toolbar into the page and wire up the
      * Print / Export PDF button.
      *
@@ -200,11 +213,7 @@
              * window.print().
              */
             setTimeout(function () {
-                if (!wasPrintPdf && window.Plotly) {
-                    document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
-                        try { Plotly.Plots.resize(plot); } catch (_) {}
-                    });
-                }
+                if (!wasPrintPdf) { resizeAllPlots(); }
                 /* Let the browser commit one more render pass after the
                  * Plotly resize before capturing the print layout.        */
                 requestAnimationFrame(function () {
@@ -237,11 +246,7 @@
                     html.classList.remove('print-pdf');
                     window.removeEventListener('afterprint', restoreAfterPrint);
                     /* Re-render Plotly charts at presentation-mode dimensions. */
-                    if (window.Plotly) {
-                        document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
-                            try { Plotly.Plots.resize(plot); } catch (_) {}
-                        });
-                    }
+                    resizeAllPlots();
                 }
                 window.addEventListener('afterprint', restoreAfterPrint);
                 setTimeout(restoreAfterPrint, 2000);
@@ -260,8 +265,24 @@
         syncSlideDimensions();
         wrapPortraitSlides();
         initToolbar();
-        /* Resize any charts that happen to be on the opening slide. */
-        resizePlotsInSlide(Reveal.getCurrentSlide());
+        if (document.documentElement.classList.contains('print-pdf')) {
+            /*
+             * In print-pdf mode all slides are rendered simultaneously.
+             * Schedule a resize of every Plotly chart after a short delay so
+             * it runs after the page's own 'ready' handler has finished
+             * creating the charts.  Without this, charts that were initialised
+             * while their containers had incorrect dimensions (e.g. because
+             * Reveal.js had not yet finished its pdf-page layout) remain
+             * mis-sized until the next explicit resize call.
+             *
+             * 300 ms is sufficient for the synchronous chart-creation code to
+             * complete and for the browser to perform a layout pass.
+             */
+            setTimeout(resizeAllPlots, 300);
+        } else {
+            /* Resize any charts that happen to be on the opening slide. */
+            resizePlotsInSlide(Reveal.getCurrentSlide());
+        }
     });
 
     Reveal.on('slidechanged', function (event) {
@@ -278,19 +299,14 @@
      * dimensions are up-to-date so the browser's print renderer captures
      * them correctly instead of showing blank / clipped areas.
      */
-    window.addEventListener('beforeprint', function () {
-        if (window.Plotly) {
-            document.querySelectorAll('.js-plotly-plot').forEach(function (plot) {
-                try { Plotly.Plots.resize(plot); } catch (_) {}
-            });
-        }
-    });
+    window.addEventListener('beforeprint', resizeAllPlots);
 
     /* Expose helpers for manual use if needed. */
     window.PortraitSlides = {
         syncSlideDimensions: syncSlideDimensions,
         wrapPortraitSlides:  wrapPortraitSlides,
         resizePlotsInSlide:  resizePlotsInSlide,
+        resizeAllPlots:      resizeAllPlots,
         initToolbar:         initToolbar
     };
 }());
