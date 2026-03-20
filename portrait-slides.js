@@ -119,8 +119,7 @@
     /**
      * Trigger a resize event on every Plotly chart in the entire document.
      * Used when all slides are visible simultaneously (print-pdf mode) or
-     * when the global layout has changed (e.g. entering / leaving print-pdf
-     * mode via the toolbar button).
+     * just before the browser captures the print layout.
      */
     function resizeAllPlots() {
         if (!window.Plotly) { return; }
@@ -131,14 +130,16 @@
 
     /**
      * Inject the presentation toolbar into the page and wire up the
-     * Print / Export PDF button.
+     * mode-appropriate action button.
      *
-     * The toolbar shows the document title and a button that:
-     *  1. Temporarily enables the `print-pdf` layout class on <html>
-     *     (the same class Reveal.js adds when ?print-pdf is in the URL),
-     *     so portrait slides are rotated correctly in the printed output.
-     *  2. Opens the browser print dialog.
-     *  3. Restores the previous layout class state after the dialog closes.
+     * Outside print-pdf mode the toolbar shows a "Toggle Print Mode" button
+     * that navigates to ?print-pdf so Reveal.js can build its PDF page layout
+     * (creates .pdf-page containers and centres each section on the page).
+     *
+     * Inside print-pdf mode the toolbar shows a "Print" button that calls
+     * window.print() directly.  This two-step flow makes the required
+     * navigation explicit to the user:
+     *   Presentation → (Toggle Print Mode) → Print Mode → (Print) → dialog
      *
      * The toolbar element carries id="presentation-toolbar" so that
      * portrait-slides.css can hide it via @media print.
@@ -146,6 +147,8 @@
     function initToolbar() {
         /* Do nothing if the toolbar is already present (e.g. called twice). */
         if (document.getElementById('presentation-toolbar')) { return; }
+
+        var isPrintPdf = document.documentElement.classList.contains('print-pdf');
 
         var toolbar = document.createElement('div');
         toolbar.id = 'presentation-toolbar';
@@ -158,7 +161,9 @@
         var btn = document.createElement('button');
         btn.className = 'toolbar-print-btn';
         btn.type = 'button';
-        btn.textContent = '\uD83D\uDDA8 Print / Export PDF';
+        btn.textContent = isPrintPdf
+            ? '\uD83D\uDDA8 Print'
+            : '\uD83D\uDDA8 Toggle Print Mode';
         toolbar.appendChild(btn);
 
         /* Insert as the very first child of <body>. */
@@ -181,99 +186,35 @@
         }
 
         btn.addEventListener('click', function () {
-            var html = document.documentElement;
-            var wasPrintPdf = html.classList.contains('print-pdf');
-
             /*
-             * Portrait slides print correctly only when Reveal.js has run its
-             * PDF layout: it creates .pdf-page containers and centres each
-             * section within its page (top ≈ (pageHeight − slideHeight) / 2).
-             * Without that offset the portrait-content sits at top: 0 and the
-             * printed page has no top margin.
-             *
-             * Reveal.js runs setupPDF() only when the URL contains ?print-pdf.
-             * If .pdf-page elements are absent we must navigate there so the
-             * proper layout is built before printing.  A sessionStorage flag
-             * tells the page to open the print dialog automatically once ready.
+             * Re-read the class at click time rather than relying on the
+             * captured `isPrintPdf` value, so the handler reflects the
+             * current page state even if the class was toggled externally.
              */
-            if (!document.querySelector('.reveal .slides .pdf-page')) {
-                try {
-                    sessionStorage.setItem('portrait-slides-autoprint', '1');
-                } catch (_) {}
-                window.location.replace(
-                    window.location.pathname + '?print-pdf');
-                return;
-            }
-
-            /* .pdf-page containers exist — Reveal.js layout is in place.
-             * Proceed with the normal print flow.                          */
-
-            /* Activate print-pdf layout so portrait slides render correctly. */
-            if (!wasPrintPdf) {
-                html.classList.add('print-pdf');
-            }
-
-            /*
-             * Delay window.print() so the browser fully applies any class
-             * changes and re-renders before the print layout is captured.
-             *
-             * When transitioning from presentation to print-pdf mode
-             * (!wasPrintPdf), portrait-content switches from scale() to
-             * rotate(90°), so Plotly charts must be resized to the new
-             * bounding box.  The resize is done inside the timeout so it
-             * runs after the CSS transition, and window.print() follows in
-             * the next animation frame so the browser has committed the new
-             * render before the print snapshot is taken.
-             *
-             * When already in print-pdf mode (wasPrintPdf = true), the charts
-             * are already correctly sized for the print layout — do not resize
-             * them, as doing so can corrupt the rendered SVG before printing.
-             *
-             * 150 ms gives the browser a full style + layout pass after the
-             * class change before Plotly resize runs.  Values below ~50 ms
-             * were unreliable on iOS Safari.  The extra 50 ms over the
-             * previous 100 ms baseline provides headroom for the Plotly resize
-             * to complete before the subsequent requestAnimationFrame fires
-             * window.print().
-             */
-            setTimeout(function () {
-                if (!wasPrintPdf) { resizeAllPlots(); }
-                /* Let the browser commit one more render pass after the
-                 * Plotly resize before capturing the print layout.        */
+            if (document.documentElement.classList.contains('print-pdf')) {
+                /*
+                 * Already in print-pdf mode — Reveal.js has built the
+                 * .pdf-page layout.  Resize any Plotly charts to the current
+                 * (rotated) layout dimensions, then open the print dialog.
+                 */
+                resizeAllPlots();
                 requestAnimationFrame(function () {
                     window.print();
                 });
-            }, 150);
-
-            /*
-             * Restore the class after printing.
-             *
-             * afterprint is the standard event but is not reliably fired on
-             * all platforms (notably iOS Safari).  A timeout is therefore
-             * registered as a fallback; the `restored` flag prevents the
-             * class being removed twice.
-             *
-             * After restoring the class, Plotly charts are resized back to
-             * the presentation-mode (scaled) dimensions.
-             *
-             * The 2 000 ms timeout is deliberately conservative: it is long
-             * enough that a typical print dialog has closed (or the user has
-             * switched away), yet short enough to feel responsive.  Because
-             * the print snapshot is captured before the dialog appears, this
-             * restore cannot affect the printed output.
-             */
-            if (!wasPrintPdf) {
-                var restored = false;
-                function restoreAfterPrint() {
-                    if (restored) { return; }
-                    restored = true;
-                    html.classList.remove('print-pdf');
-                    window.removeEventListener('afterprint', restoreAfterPrint);
-                    /* Re-render Plotly charts at presentation-mode dimensions. */
-                    resizeAllPlots();
-                }
-                window.addEventListener('afterprint', restoreAfterPrint);
-                setTimeout(restoreAfterPrint, 2000);
+            } else {
+                /*
+                 * Navigate to the print-pdf URL so Reveal.js builds the PDF
+                 * page layout (creates .pdf-page containers, centres sections).
+                 * The "Print" button visible in that view lets the user then
+                 * trigger the print dialog.
+                 *
+                 * Only the pathname is preserved; any existing query string or
+                 * hash is intentionally dropped because ?print-pdf mode renders
+                 * all slides simultaneously and the slide-position hash is not
+                 * meaningful in that context.
+                 */
+                window.location.replace(
+                    window.location.pathname + '?print-pdf');
             }
         });
     }
@@ -301,28 +242,9 @@
              *
              * 300 ms is sufficient for the synchronous chart-creation code to
              * complete and for the browser to perform a layout pass.
-             *
-             * If the toolbar Print button navigated here from the presentation
-             * view (detected via sessionStorage), open the print dialog
-             * automatically after the chart resize completes.
              */
-            var autoprint = false;
-            try {
-                if (sessionStorage.getItem('portrait-slides-autoprint') === '1') {
-                    autoprint = true;
-                    sessionStorage.removeItem('portrait-slides-autoprint');
-                }
-            } catch (_) {}
-
             setTimeout(function () {
                 resizeAllPlots();
-                if (autoprint) {
-                    /* One extra animation frame lets the browser commit the
-                     * resized charts before the print snapshot is taken.  */
-                    requestAnimationFrame(function () {
-                        window.print();
-                    });
-                }
             }, 300);
         } else {
             /* Resize any charts that happen to be on the opening slide. */
